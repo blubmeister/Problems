@@ -17,4 +17,22 @@ public class Primes {
 		}
 		return isPrime;
 	}
+
+	public static int[] getPrimeNumbersUpTo(int max) {
+		boolean[] isPrime = getPrimes(max);
+		int count = 1;
+		for (int i = 3; i <= max; i += 2) {
+			if (isPrime[i])
+				count++;
+		}
+		int[] primes = new int[count];
+		primes[0] = 2;
+		int index = 1;
+		for (int i = 3; i <= max; i += 2) {
+			if (isPrime[i]) {
+				primes[index++] = i;
+			}
+		}
+		return primes;
+	}
 }
