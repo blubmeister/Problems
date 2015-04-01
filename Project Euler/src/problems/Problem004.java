@@ -2,10 +2,11 @@ package problems;
 
 import util.Timer;
 
-public class Problem4 {
+public class Problem004 {
+
+	static final int N = 999;
 
 	public static void main(String[] args) {
-		final int N = 999;
 
 		Timer.start();
 		int largestPalindrome = 0;

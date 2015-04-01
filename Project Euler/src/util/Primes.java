@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 public class Primes {
 
-	static boolean[] getPrimes(int max) {
+	public static boolean[] getPrimes(int max) {
 		boolean[] isPrime = new boolean[max + 1];
 		Arrays.fill(isPrime, 2, isPrime.length - 1, true);
 		for (int i = 2; i * i < isPrime.length; i++) {
