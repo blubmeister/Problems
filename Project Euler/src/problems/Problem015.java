@@ -6,7 +6,7 @@ public class Problem015 {
 
 	static final int N = 20;
 
-	static int[][] results = new int[N + 1][N + 1];
+	static long[][] results = new long[N + 1][N + 1];
 
 	public static void main(String[] args) {
 		Timer.start();
@@ -18,7 +18,7 @@ public class Problem015 {
 		System.out.println(lattice(N, N));
 	}
 
-	public static int lattice(int x, int y) {
+	public static long lattice(int x, int y) {
 		if (results[x][y] != 0)
 			return results[x][y];
 		else {
