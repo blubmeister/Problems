@@ -25,4 +25,25 @@ public class MyMath {
 		}
 		return result;
 	}
+
+	public static int sumOfDivisors(int N, int[] primes) {
+
+		int result = 1;
+		int n = N;
+		for (int p : primes) {
+			int count = p;
+			if (n % p == 0) {
+				n /= p;
+				count *= p;
+				while (n % p == 0) {
+					n /= p;
+					count *= p;
+				}
+				result *= (count - 1) / (p - 1);
+			}
+			if (n == 1)
+				return result;
+		}
+		return -1;
+	}
 }
