@@ -46,4 +46,28 @@ public class MyMath {
 		}
 		return -1;
 	}
+
+	public static int ipow(int base, int exp) {
+		int result = 1;
+		while (exp > 0) {
+			if ((exp & 1) != 0)
+				result *= base;
+			exp >>= 1;
+			base *= base;
+		}
+
+		return result;
+	}
+
+	public static long modpow(long base, long exp, long modulus) {
+		long result = 1;
+		base = base % modulus;
+		while (exp > 0) {
+			if ((exp & 1) != 0)
+				result = (result * base) % modulus;
+			exp >>= 1;
+			base = (base * base) % modulus;
+		}
+		return result;
+	}
 }
