@@ -70,4 +70,18 @@ public class MyMath {
 		}
 		return result;
 	}
+
+	public static long modmult(long a, long b, long m) {
+		double x;
+		long c;
+		long r;
+		if (a >= m)
+			a %= m;
+		if (b >= m)
+			b %= m;
+		x = a;
+		c = (long) (x * b / m);
+		r = (long) (a * b - c * m) % (long) m;
+		return r < 0 ? r + m : r;
+	}
 }

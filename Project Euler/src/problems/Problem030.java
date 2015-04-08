@@ -9,11 +9,13 @@ public class Problem030 {
 
 	public static void main(String[] args) {
 		Timer.start();
-		int max = (int) (N * MyMath.ipow(9, N));
+		int max = (int) ((N + 1) * MyMath.ipow(9, N));
 		int result = 0;
 		for (int i = 10; i <= max; i++) {
-			if (i == sumOfDigits(i, N))
+			if (i == sumOfDigits(i, N)) {
 				result += i;
+				System.out.println(i);
+			}
 		}
 		Timer.time();
 		System.out.println(result);
