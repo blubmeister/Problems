@@ -1,0 +1,211 @@
+unit primes;
+
+interface
+
+type tprimes=class(tobject)
+ private
+ maxindex,limit:integer;
+ pprimes:array of byte;
+ nnextdivn:integer;
+ nnextmodn:byte;
+ function getlimit:integer;
+ procedure setsize(n: integer);
+ public
+ constructor  create(n:integer); overload;
+ constructor  create; overload;
+ destructor destroy;override;
+ function isprime(n:integer):boolean;
+ function nextprime(n:integer):integer;overload;
+ function nextprime:integer;overload;
+ function sum_of_primes(n:integer):int64;//calculates the sum of all primes<=n;
+ property size:integer read getlimit write setsize;
+end;
+
+implementation
+
+{ tprimes }
+constructor tprimes.create(n: integer);
+begin
+inherited create;
+setsize(n);
+end;
+
+constructor tprimes.create;
+begin
+inherited create;
+setsize(5);
+end;
+
+destructor tprimes.destroy;
+begin
+  setlength(pprimes,0);
+  pprimes:=nil;
+  inherited;
+
+end;
+
+
+function tprimes.getlimit: integer;
+begin
+getlimit:=limit;
+end;
+
+procedure tprimes.setsize(n: integer);
+var
+i,j,k,l,trlimit:integer;
+mask, clearone, clearfive,set_one_and_five: byte;
+begin
+limit:=n;
+maxindex:=limit div 6;
+clearone:=255-2;
+clearfive:=255-32;
+set_one_and_five:=32+2; //2^5+2^1
+setlength(pprimes,maxindex+1);
+trlimit:=trunc(sqrt(limit));
+nnextdivn:=0;// in case of a nextprime out of the blue;
+nnextmodn:=1;
+for i:=1 to maxindex do pprimes[i]:=set_one_and_five;
+pprimes[0]:=4+8+32; //2^2+2^3+2^5;
+i:=5;
+while i<=trlimit do
+   begin
+   k:=i div 6;
+   l:=i-6*k;
+   if l=1 then mask:=2 else if l=5 then mask:=32 else mask:=0;
+   if (pprimes[k] and mask)>0 then
+     begin
+     j:=i*i;
+     k:=j div 6;
+     //(6*k+1)^2 mod 6 and (6*k+5)^2 mod 6  are both equal to 1.
+     while k<=maxindex do
+       begin
+       pprimes[k]:=pprimes[k] and clearone;
+       inc(k,i)
+       end;
+     //now we are going to erase multiples of i that are of the form 6*n+5;
+     //find the starting index for such multiples:
+     if l=1 then k:=(j+4*i) div 6 else
+       if l=5 then k:=(j+2*i) div 6;
+     while k<=maxindex do
+       begin
+       pprimes[k]:=pprimes[k] and clearfive;
+       inc(k,i)
+       end;
+     end;
+   if l=1 then inc(i,4) else inc(i,2);
+end;
+end;
+
+
+function tprimes.isprime(n: integer): boolean;
+var divn:integer;mask,modn:byte;
+function isbigprime:boolean;
+var prprime:boolean;i,maximum,delta:integer;
+begin
+prprime:=odd(n) and ((n mod 3)>0);
+maximum:=trunc(sqrt(0.0+n));
+i:=5;delta:=2;
+while prprime and (i<=maximum)  do
+begin
+if n mod i=0 then prprime:=false;
+inc(i,delta);
+delta:=6-delta;
+end;
+isbigprime:=prprime;
+end;
+begin
+divn:=n div 6;
+modn:=n-6*divn;
+if divn>maxindex then isprime:=isbigprime else
+begin
+case modn of
+1: mask:=2;
+2: mask:=4;
+3: mask:=8;
+5: mask:=32;
+else
+mask:=0
+end;
+isprime:=(pprimes[divn] and mask)>0;
+end;
+
+end;
+
+function tprimes.nextprime(n: integer): integer;
+begin
+nnextdivn:=n div 6;
+nnextmodn:=n-6*nnextdivn;
+nextprime:=nextprime
+end;
+
+function tprimes.nextprime:integer;
+var ans,nn:integer;mask:byte;
+begin
+if nnextdivn>maxindex then begin
+nn:=6*nnextdivn+nnextmodn;
+if odd(nn) then inc(nn,2) else inc(nn,1);
+while not(isprime(nn)) do inc(nn,2);
+nextprime:=nn;
+nnextdivn:=nn div 6;
+nnextmodn:=nn-nnextdivn*6;
+exit
+end;
+if nnextdivn=0 then
+begin
+if nnextmodn<2 then nnextmodn:=2 else
+if nnextmodn=2 then nnextmodn:=3 else
+if (nnextmodn=3) or (nnextmodn=4) then nnextmodn:=5 else
+begin
+nnextdivn:=1;nnextmodn:=1
+end;
+ans:=6*nnextdivn+nnextmodn;
+end
+else
+begin
+ans:=0;
+repeat
+  if nnextmodn<1 then nnextmodn:=1 else
+  if nnextmodn<5 then nnextmodn:=5 else
+  begin nnextmodn:=1;inc(nnextdivn);end;
+  if nnextmodn=1 then mask:=2 else mask:=32;
+  until ((pprimes[nnextdivn] and mask)=mask) or (nnextdivn>=maxindex);
+ if nnextdivn<maxindex then ans:=6*nnextdivn+nnextmodn;
+ if (nnextdivn=maxindex) then if isprime(6*nnextdivn+nnextmodn) then ans:=6*nnextdivn+nnextmodn;
+end;
+if ans=0 then begin inc(nnextdivn);nnextmodn:=0;ans:=nextprime; end;
+nextprime:=ans;
+end;
+
+function tprimes.sum_of_primes(n: integer): int64;
+//calculates the sum of the primes smaller than or equal to n;
+var divn,i:integer;ans:int64;k:byte;
+begin
+if n<2 then ans:=0 else
+if n<3 then ans:=2 else
+if n<5 then ans:=5 else
+if n<7 then ans:=10 else
+begin
+ans:=10;
+divn:=n div 6;
+i:=1;
+while i<divn do begin
+ k:=pprimes[i];
+   if k=2 then inc(ans,6*i+1);
+   if k=32 then inc(ans,6*i+5);
+   if k=34 then inc(ans,12*i+6);
+inc(i)
+end;
+i:=nextprime(6*i);
+while (i<=n) and (i>0) do
+begin
+ans:=ans+i;
+i:=nextprime
+end
+end;
+sum_of_primes:=ans;
+end;
+
+
+
+
+end.
